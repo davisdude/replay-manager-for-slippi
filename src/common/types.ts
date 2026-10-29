@@ -8,6 +8,7 @@ export type PlayerOverrides = {
   participantId: Id;
   prefix: string;
   pronouns: string;
+  losers?: boolean; // Only applies for GF / GFR
 };
 
 export type Player = {
@@ -61,6 +62,7 @@ export type Participant = {
   displayName: string;
   prefix: string;
   pronouns: string;
+  losers?: boolean;
 };
 
 export type Entrant = {
@@ -304,6 +306,7 @@ export type ContextSlot = {
   score: number;
   characters: ContextCharacter[];
   teamId?: number;
+  losers?: boolean;
 };
 
 // in game 1 port order

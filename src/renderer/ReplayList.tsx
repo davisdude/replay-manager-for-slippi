@@ -379,6 +379,7 @@ const ReplayListItem = forwardRef(
         participantId: Id,
         prefix: string,
         pronouns: string,
+        losers?: boolean,
       ) => {
         player.playerOverrides = {
           displayName,
@@ -387,6 +388,9 @@ const ReplayListItem = forwardRef(
           prefix,
           pronouns,
         };
+        if (typeof losers !== 'undefined') {
+          player.playerOverrides.losers = losers;
+        }
         const validPlayers = replay.players.filter(
           (otherPlayer) =>
             otherPlayer.playerType === 0 || otherPlayer.playerType === 1,
