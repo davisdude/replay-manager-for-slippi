@@ -441,6 +441,29 @@ async function getLadderPhaseGroup(
   };
 }
 
+function getLosersFlags(set: any) : [boolean | undefined, boolean | undefined] {
+  if (!set.isGF) {
+    return [undefined, undefined];
+  }
+  if (set.entrant1PrereqType !== 'set' || set.entrant2PrereqType !== 'set')
+  {
+    return [undefined, undefined];
+  }
+
+  // Grand finals reset
+  if (
+    set.entrant1PrereqCondition === 'winner' &&
+    set.entrant2PrereqCondition === 'winner'
+  ) {
+    return [true, true];
+  }
+
+  return [
+    set.entrant1PrereqCondition === 'loser',
+    set.entrant2PrereqCondition === 'loser'
+  ];
+}
+
 // 841804 don-t-park-on-the-grass-2018-1
 // 1838376 genesis-9-1
 // 2254448 test-tournament-sorry
@@ -1228,19 +1251,21 @@ type ApiParticipant = {
     } | null;
   };
 };
-function gqlParticipantToParticipant(participant: ApiParticipant): Participant {
+function gqlParticipantToParticipant(participant: ApiParticipant, losers?: boolean): Participant {
   return {
     id: participant.id,
     displayName: participant.gamerTag,
     prefix: participant.prefix || '',
     pronouns: participant.player.user?.genderPronoun || '',
+    losers: losers,
   };
 }
 function gqlSetToSet(set: any): Set {
   const slot1 = set.slots[0];
   const slot2 = set.slots[1];
-  const entrant1Participants: Participant[] = slot1.entrant.participants.map(
-    gqlParticipantToParticipant,
+  const [entrant1Losers, entrant2Losers] = getLosersFlags(set);
+  const entrant1Participants: Participant[] = slot1.entrant.participants.map((participant)
+    => gqlParticipantToParticipant(participant, entrant1Losers),
   );
   if (
     entrant1Participants.length === 2 &&
@@ -1253,8 +1278,8 @@ function gqlSetToSet(set: any): Set {
       entrant1Participants[0],
     ];
   }
-  const entrant2Participants: Participant[] = slot2.entrant.participants.map(
-    gqlParticipantToParticipant,
+  const entrant2Participants: Participant[] = slot2.entrant.participants.map((participant)
+    => gqlParticipantToParticipant(participant, entrant2Losers),
   );
   if (
     entrant2Participants.length === 2 &&
